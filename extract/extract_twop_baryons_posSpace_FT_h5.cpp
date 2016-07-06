@@ -47,51 +47,6 @@ int createMomenta(int **mom, int L, int Qsq){
 }
 //=================================================================================================
 
-// int momentaCounter(int Qsq){
-//   int counter = 0;
-
-//   for(int iQ = 0 ; iQ <= Qsq ; iQ++){
-//     for(int nx = iQ ; nx >= -iQ ; nx--)
-//       for(int ny = iQ ; ny >= -iQ ; ny--)
-//         for(int nz = iQ ; nz >= -iQ ; nz--){
-//           if( nx*nx + ny*ny + nz*nz == iQ ){
-//             counter++;
-//           }
-//         }
-//   }
-
-//   return counter;
-// }
-//=================================================================================================
-
-// void createMomenta(int **mom, int L, int Qsq){
-
-//   int totMom = 0;
-//   int Gmom[3];
-
-//   for(int pz = 0; pz < L; pz++){
-//     for(int py = 0; py < L; py++){
-//       for(int px = 0; px < L; px++){
-//         if(px < L/2) Gmom[0] = px;
-//         else         Gmom[0] = px - L;
-
-//         if(py < L/2) Gmom[1] = py;
-//         else         Gmom[1] = py - L;
-
-//         if(pz < L/2) Gmom[2] = pz;
-//         else         Gmom[2] = pz - L;
-
-//         if( (Gmom[0]*Gmom[0] + Gmom[1]*Gmom[1] + Gmom[2]*Gmom[2]) <= Qsq ){
-// 	  for(int i=0;i<3;i++) mom[totMom][i] = Gmom[i];
-//           printf("Mom %d: %+d %+d %+d\n",totMom+1,mom[totMom][0],mom[totMom][1],mom[totMom][2]);
-//           totMom++;
-// 	}
-//       }}
-//   }
-
-// }
-//=================================================================================================
-
 int main(int argc, char *argv[]){
 
   if(argc!=12) usage(argv[0]);
