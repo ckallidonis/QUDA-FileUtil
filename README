@@ -11,12 +11,12 @@ These ASCII/HDF5 files are expected to be output of the QUDA
 library and therefore should have the QUDA libary writing
 format. 
 
-- Extraction
+- Extract
 This folder contains C/C++ programs to extract HDF5 files
 into their corresponding ASCII format. The HDF5 library is
 required to compile these programs.
 
-- Conversion
+- Convert
 This folder contains C/C++ programs to convert ASCII files
 into the HDF5 format. The HDF5 library is required to compile
 these programs.
