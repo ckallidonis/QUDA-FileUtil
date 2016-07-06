@@ -23,5 +23,5 @@ these programs.
 
 - scripts_h5
 This folder contains scripts which run the programs that extract
-HDF5 files. Additional scripts reshape the extracted files into
-a predefined ASCII form to ensure compatibility.
+HDF5 files. Additional scripts reshape ASCII files into a different,
+predefined ASCII form to ensure compatibility.
