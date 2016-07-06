@@ -16,3 +16,7 @@ This folder contains C/C++ programs to extract HDF5 files
 into their corresponding ASCII format. The HDF5 library is
 required to compile these programs.
 
+- Conversion
+This folder contains C/C++ programs to convert ASCII files
+into the HDF5 format. The HDF5 library is required to compile
+these programs.
