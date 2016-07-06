@@ -20,3 +20,8 @@ required to compile these programs.
 This folder contains C/C++ programs to convert ASCII files
 into the HDF5 format. The HDF5 library is required to compile
 these programs.
+
+- scripts_h5
+This folder contains scripts which run the programs that extract
+HDF5 files. Additional scripts reshape the extracted files into
+a predefined ASCII form to ensure compatibility.
