@@ -32,9 +32,6 @@ fi
 
 while read x y z t
 do
-    src=sx${x}sy${y}sz${z}st${t}
-    SRC_DIR=${OUT_DIR}/${src}
-    mkdir -p ${SRC_DIR}
     for part in up down
     do
 	for tsink in $TSINK
@@ -63,6 +60,6 @@ do
        	done
     done
     
-    echo $src
+    echo sx${x}sy${y}sz${z}st${t}
 
 done < $SRC_LIST
