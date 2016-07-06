@@ -1,36 +1,42 @@
 #!/bin/bash
 
-if [ $# -ne 7 ]
+if [ $# -ne 8 ]
 then
-    echo "Usage: $0 <extract_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir>"
+    echo "Usage: $0 <extract_dir> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir>"
     exit
 fi
 
 DIR=$1
-SRC_LIST=$2
-MOM_LIST=$3
-CONF=$4
-T=$5
-Qsq=$6
-EXE_DIR=$7
+OUT_DIR=$2
+SRC_LIST=$3
+MOM_LIST=$4
+CONF=$5
+T=$6
+Qsq=$7
+EXE_DIR=$8
 
 while read x y z t
 do 
     FILE=${DIR}/twop.${CONF}_mesons_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
 
     src=sx${x}sy${y}sz${z}st${t}
+    EX_DIR=${DIR}/${src}
+    mkdir -p ${EX_DIR}
 
-    OUT_DIR=${DIR}/${src}
+    OUT_FILE=${OUT_DIR}/twop.${CONF}.mesons.SS.${x}.${y}.${z}.${t}.dat
 
-    mkdir -p ${OUT_DIR}
+    rm -f ${OUT_FILE}
 
     for tp in pseudoscalar scalar g5g1 g5g2 g5g3 g5g4 g1 g2 g3 g4
     do
 	while read mx my mz
 	do
-	    OUT_FILE=${OUT_DIR}/twop.${CONF}.mesons.${tp}.${mx}_${my}_${mz}.SS.${x}.${y}.${z}.${t}.dat
+	    EX_FILE=${EX_DIR}/twop.${CONF}.mesons.${tp}.${mx}_${my}_${mz}.SS.${x}.${y}.${z}.${t}.dat
 	    
-	    ${EXE_DIR}/extract_twop_mesons_h5 ${FILE} ${OUT_FILE} ${tp} ${mx} ${my} ${mz} ${CONF} ${src} ${T} 0
+	    ${EXE_DIR}/extract_twop_mesons_h5 ${FILE} ${EX_FILE} ${tp} ${mx} ${my} ${mz} ${CONF} ${src} ${T} 0
+
+            cat ${EX_FILE} >> ${OUT_FILE}
+
 	done < ${MOM_LIST}
     done
 
