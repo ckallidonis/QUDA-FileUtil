@@ -14,8 +14,6 @@ CONF=$5
 
 while read x y z t
 do
-    src=sx${x}sy${y}sz${z}st${t}
-
     BAR_FILE=${INI_DIR}/twop.${CONF}.baryons.SS.${x}.${y}.${z}.${t}.dat
     MES_FILE=${INI_DIR}/twop.${CONF}.mesons.SS.${x}.${y}.${z}.${t}.dat
     BAROUT_FILE=${OUT_DIR}/twop_rshp.${CONF}.baryons.SS.${x}.${y}.${z}.${t}.dat
@@ -32,6 +30,6 @@ do
 	done < ${MOM_LIST}
     done
 
-    echo ${src}
+    echo sx${x}sy${y}sz${z}st${t}
 
 done < ${SRC_LIST}
