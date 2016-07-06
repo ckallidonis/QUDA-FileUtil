@@ -2,7 +2,11 @@
 extract/*~
 convert/*~
 h5_scirpts/threep/*~
+h5_scirpts/twop/*~
+h5_scirpts/loop/*~
 #*
 extract/#*
 convert/#*
 h5_scirpts/threep/#*
+h5_scirpts/twop/#*
+h5_scirpts/loop/#*
