@@ -1,0 +1,12 @@
+File Utilities Repository                     July 2016
+-------------------------------------------------------
+Created by Christos Kallidonis
+
+
+This repository contains a set of programs and scripts,
+particularly useful to manipulate ASCII and HDF5 files.
+The repository supports ASCII/HDF5 files containing disconnected
+loops, as well as two- and three-point correlation functions.
+These ASCII/HDF5 files are expected to be output of the QUDA
+library and therefore should have the QUDA libary writing
+format. 
