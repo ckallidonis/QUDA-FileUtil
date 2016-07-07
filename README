@@ -8,7 +8,7 @@ particularly useful to manipulate ASCII and HDF5 files.
 The repository supports ASCII/HDF5 files containing disconnected
 loops, as well as two- and three-point correlation functions.
 These ASCII/HDF5 files are expected to be output of the QUDA
-library and therefore should have the QUDA libary writing
+library and therefore should have the QUDA library writing
 format. 
 
 - extract
@@ -22,7 +22,10 @@ into the HDF5 format. The HDF5 library is required to compile
 these programs.
 
 - scripts
-This folder contains scripts which run the programs that extract
-HDF5 files. Additional scripts reshape files already in ASCII format
-into a different, predefined ASCII form to ensure compatibility with
-the extracted HDF5 files.
+This folder contains scripts which:
+ > run the programs that extract HDF5 files.
+ > reshape files already in ASCII format into a different,
+   predefined ASCII form to ensure compatibility with the
+   extracted HDF5 files.
+ > compare two- and three-point functions and disconnected
+   quark loops.
