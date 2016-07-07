@@ -14,6 +14,7 @@ extract/extract_exact_loop_h5
 extract/extract_stoch_loop_TSM_h5
 extract/extract_stoch_loop_h5
 extract/extract_threep_h5
+extract/extract_threep_posSpace_FT_h5
 extract/extract_twop_baryons_h5
 extract/extract_twop_baryons_posSpace_FT_h5
 extract/extract_twop_mesons_h5
