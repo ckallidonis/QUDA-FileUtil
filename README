@@ -29,3 +29,12 @@ This folder contains scripts which:
    extracted HDF5 files.
  > compare two- and three-point functions and disconnected
    quark loops.
+
+
+
+- Sample compile command for programs inside 'extract' and
+  'convert':
+
+  g++ -Wall -I<LIB_ROOT>/include  -L<LIB_ROOT>/lib -lhdf5  <CODE_NAME>.cpp -o <CODE_NAME>
+
+  LIB_ROOT is the root directory where the HDF5 library, libhdf5.a, is installed.
