@@ -1,8 +1,9 @@
 #!/bin/bash
 
-if [ $# -ne 8 ]
+if [ $# -ne 9 ]
 then
-    echo "Usage: $0 <extract_dir> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir>"
+    echo "Usage: $0 <extract_dir> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir> <meson, see list below"
+    printf "  0: all\n  1: pseudoscalar\n  2: scalar\n  3: g5g1\n  4: g5g2\n  5: g5g3\n  6: g5g4\n  7: g1\n  8: g2\n  9: g3\n 10: g4\n"
     exit
 fi
 
@@ -14,6 +15,29 @@ CONF=$5
 T=$6
 Qsq=$7
 EXE_DIR=$8
+mes=$9
+
+LIST[1]="pseudoscalar"
+LIST[2]="scalar"
+LIST[3]="g5g1"
+LIST[4]="g5g2"
+LIST[5]="g5g3"
+LIST[6]="g5g4"
+LIST[7]="g1"
+LIST[8]="g2"
+LIST[9]="g3"
+LIST[10]="g4"
+
+if [ $mes -eq 0 ]
+then
+    MESON_LIST="pseudoscalar scalar g5g1 g5g2 g5g3 g5g4 g1 g2 g3 g4"
+fi
+
+if [ $mes -gt 0 ]
+then
+    MESON_LIST=${LIST[$mes]}
+fi
+
 
 while read x y z t
 do 
@@ -27,7 +51,7 @@ do
 
     rm -f ${OUT_FILE}
 
-    for tp in pseudoscalar scalar g5g1 g5g2 g5g3 g5g4 g1 g2 g3 g4
+    for tp in ${MESON_LIST}
     do
 	while read mx my mz
 	do

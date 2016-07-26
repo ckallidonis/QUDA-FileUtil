@@ -1,8 +1,9 @@
 #!/bin/bash
 
-if [ $# -ne 8 ]
+if [ $# -ne 9 ]
 then
-    echo "Usage: $0 <extract_dir> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir>"
+    echo "Usage: $0 <extract_dir> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir>  <baryon, see list below>"
+    printf "  0: all\n  1: nucl_nucl\n  2: nucl_roper\n  3: roper_nucl\n  4: roper_roper\n  5: deltapp_deltamm_11\n  6: deltapp_deltamm_22\n  7: deltapp_deltamm_33\n  8: deltap_deltaz_11\n  9: deltap_deltaz_22\n 10: deltap_deltaz_33\n"
     exit
 fi
 
@@ -14,6 +15,28 @@ CONF=$5
 T=$6
 Qsq=$7
 EXE_DIR=$8
+bar=$9
+
+LIST[1]="nucl_nucl"
+LIST[2]="nucl_roper"
+LIST[3]="roper_nucl"
+LIST[4]="roper_roper"
+LIST[5]="deltapp_deltamm_11"
+LIST[6]="deltapp_deltamm_22"
+LIST[7]="deltapp_deltamm_33"
+LIST[8]="deltap_deltaz_11"
+LIST[9]="deltap_deltaz_22"
+LIST[10]="deltap_deltaz_33"
+
+if [ $bar -eq 0 ]
+then
+    BARYON_LIST="nucl_nucl nucl_roper roper_nucl roper_roper deltapp_deltamm_11 deltapp_deltamm_22 deltapp_deltamm_33 deltap_deltaz_11 deltap_deltaz_22 deltap_deltaz_33"
+fi
+
+if [ $bar -gt 0 ]
+then
+    BARYON_LIST=${LIST[$bar]}
+fi
 
 while read x y z t
 do 
@@ -27,7 +50,7 @@ do
 
     rm -f ${OUT_FILE}
 
-    for tp in nucl_nucl nucl_roper roper_nucl roper_roper deltapp_deltamm_11 deltapp_deltamm_22 deltapp_deltamm_33 deltap_deltaz_11 deltap_deltaz_22 deltap_deltaz_33
+    for tp in ${BARYON_LIST}
     do
 	while read mx my mz
 	do
