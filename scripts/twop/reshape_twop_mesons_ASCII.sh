@@ -14,18 +14,15 @@ CONF=$5
 
 while read x y z t
 do
-    BAR_FILE=${INI_DIR}/twop.${CONF}.baryons.SS.${x}.${y}.${z}.${t}.dat
     MES_FILE=${INI_DIR}/twop.${CONF}.mesons.SS.${x}.${y}.${z}.${t}.dat
-    BAROUT_FILE=${OUT_DIR}/twop_rshp.${CONF}.baryons.SS.${x}.${y}.${z}.${t}.dat
     MESOUT_FILE=${OUT_DIR}/twop_rshp.${CONF}.mesons.SS.${x}.${y}.${z}.${t}.dat
     
-    rm -f ${BAROUT_FILE} ${MESOUT_FILE}
+    rm -f ${MESOUT_FILE}
 
     for i in 0 1 2 3 4 5 6 7 8 9
     do
 	while read mx my mz
 	do
-	    grep -- "^${i}" ${BAR_FILE} | grep -- "${mx} ${my} ${mz}" >> ${BAROUT_FILE}
 	    grep -- "^${i}" ${MES_FILE} | grep -- "${mx} ${my} ${mz}" >> ${MESOUT_FILE}
 	done < ${MOM_LIST}
     done
