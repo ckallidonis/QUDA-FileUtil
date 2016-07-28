@@ -1,8 +1,9 @@
 #!/bin/bash
 
-if [ $# -ne 9 ]
+if [ $# -ne 10 ]
 then
-    echo "Usage: $0 <extact_dir> <out_dir> <src_list> <mom_list> <conf> <tsink> <proj> <Qsq> <exe_dir>"
+    echo "Usage: $0 <h5_dir> <out_dir> <src_list> <mom_list> <conf> <tsink> <proj> <Qsq> <exe_dir> <type, see below>"
+    printf " 0: all\n 1: ultra_local\n 2: noether\n 3: oneD\n"
     exit
 fi
 
@@ -15,6 +16,25 @@ TSINK=$6
 PROJ=$7
 Qsq=$8
 EXE_DIR=$9
+EX_TYPE=$10
+
+if [ $EX_TYPE - eq 0 ]
+then
+    EX_LIST="ultra_local noether oneD"
+fi
+if [ $EX_TYPE - eq 1 ]
+then
+    EX_LIST="ultra_local"
+fi
+if [ $EX_TYPE - eq 2 ]
+then
+    EX_LIST="noether"
+fi
+if [ $EX_TYPE - eq 3 ]
+then
+    EX_LIST="oneD"
+fi
+
 
 while read x y z t
 do 
@@ -32,7 +52,7 @@ do
 	do
 	    for part in up down
 	    do
-		for tp in ultra_local noether oneD
+		for tp in ${EX_LIST}
 		do
 		    OUT_FILE=${OUT_DIR}/threep.${CONF}_tsink${tsink}_proj${proj}.neutron.${part}.${tp}.SS.${x}.${y}.${z}.${t}.dat
 		    rm -f ${OUT_FILE}
