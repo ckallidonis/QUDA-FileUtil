@@ -225,7 +225,7 @@ int main(int argc, char *argv[]){
     Ns = dt;
   }
 
-  float *twopBuf = (float*) malloc(Np*2*V*2*sizeof(float));
+  Float *twopBuf = (Float*) malloc(Np*2*V*2*sizeof(Float));
   if(twopBuf == NULL){
     fprintf(stderr,"Cannot allocate twopBuf. Exiting\n");
     exit(-1);
@@ -255,7 +255,7 @@ int main(int argc, char *argv[]){
   //----------------------------------------------
 
   //-Perform the FT
-  float two_pi = 4.0*asin(1.0);
+  Float two_pi = 4.0*asin(1.0);
   int **mom;
   
   mom = (int**) malloc(MAX_MOM*sizeof(int*));
@@ -275,12 +275,12 @@ int main(int argc, char *argv[]){
   int Nmoms = createMomenta(mom,L,Qsq);
   printf("Created %d Momenta\n",Nmoms);
 
-  float *twopMom = (float*) malloc(2*Np*Nmoms*T*2*sizeof(float));
+  Float *twopMom = (Float*) malloc(2*Np*Nmoms*T*2*sizeof(Float));
   if(twopMom == NULL){
     fprintf(stderr,"Cannot allocate twopMom. Exiting\n");
     exit(-1);
   }
-  memset(twopMom,0,2*Np*Nmoms*T*2*sizeof(float));
+  memset(twopMom,0,2*Np*Nmoms*T*2*sizeof(Float));
   
   for(int mes=Ns;mes<(Np+Ns);mes++){
     int bidx = (mes%Np);
@@ -295,8 +295,8 @@ int main(int argc, char *argv[]){
 	for(int z=0;z<L;z++){
 	  for(int y=0;y<L;y++){
 	    for(int x=0;x<L;x++){
-	      float expn = two_pi*(px*(x-src[0]) + py*(y-src[1]) + pz*(z-src[2])) / (float)L;
-	      float phase[2];
+	      Float expn = two_pi*(px*(x-src[0]) + py*(y-src[1]) + pz*(z-src[2])) / (Float)L;
+	      Float phase[2];
 	      phase[0] =  cos(expn);
 	      phase[1] = -sin(expn);
 	      for(int t=0;t<T;t++){
