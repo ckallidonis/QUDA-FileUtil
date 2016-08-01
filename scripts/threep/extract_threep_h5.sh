@@ -42,7 +42,7 @@ do
 
     src=sx${x}sy${y}sz${z}st${t}
 
-    EX_DIR=${DIR}/${src}
+    EX_DIR=${OUT_DIR}/${src}
 
     mkdir -p ${EX_DIR}
 
