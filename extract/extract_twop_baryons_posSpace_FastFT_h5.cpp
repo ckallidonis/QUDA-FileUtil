@@ -55,7 +55,6 @@ int createMomenta(int **mom, int L, int Qsq){
             mom[totMom][0] = nx;
             mom[totMom][1] = ny;
             mom[totMom][2] = nz;
-	    //            printf("Mom %d: %+d %+d %+d\n",totMom+1,mom[totMom][0],mom[totMom][1],mom[totMom][2]);
             totMom++;
           }
         }
@@ -214,8 +213,8 @@ void copyTwopToWriteBuf(Float *twopMom, Float *twopFFT, int **momALL, int **mom,
 
     if( (px*px + py*py + pz*pz) <= Qsq ){
       int imom = -1;
-      for(int im=0;im<Nmoms;im++)
-	if(px==mom[im][0] && py==mom[im][1] && pz==mom[im][2]) imom = im;
+      for(int im=0;im<Nmoms;im++)                                          // With this we ensure that the momenta 
+	if(px==mom[im][0] && py==mom[im][1] && pz==mom[im][2]) imom = im;  // have the standard ordering
 
       if(imom==-1){
 	printf("Check your momenta arrays. Exiting.\n");
@@ -435,20 +434,17 @@ int main(int argc, char *argv[]){
     exit(-1);
   }
 
-  //-Create the FFT plan
   if( typeid(Float) == typeid(float) ){
     fftwf_plan FFTplanMany = fftwf_plan_many_dft(rank, nRank, howmany,
 						 (fftwf_complex*) twopFFT, inembed,
 						 istride, idist,
 						 (fftwf_complex*) twopFFT, onembed,
 						 ostride, odist,
-						 FFTW_FORWARD, FFTW_MEASURE);
+						 FFTW_FORWARD, FFTW_MEASURE);   //-Create the FFT plan
 
     reOrder(twopFFT,twopBuf,twopInfo); //-Reorder the two-point function buffer to make the FFT more efficiently, MUST do this AFTER creating the plan
-
-    fftwf_execute(FFTplanMany); //-Perform FFT
-
-    fftwf_destroy_plan(FFTplanMany); //-Destroy the plan
+    fftwf_execute(FFTplanMany);        //-Perform FFT
+    fftwf_destroy_plan(FFTplanMany);  //-Destroy the plan
   }
   if( typeid(Float) == typeid(double) ){
     fftw_plan FFTplanMany = fftw_plan_many_dft(rank, nRank, howmany,
@@ -458,11 +454,9 @@ int main(int argc, char *argv[]){
 					       ostride, odist,
 					       FFTW_FORWARD, FFTW_MEASURE);
     
-    reOrder(twopFFT,twopBuf,twopInfo); //-Reorder the two-point function buffer to make the FFT more efficiently, MUST do this AFTER creating the plan
-
-    fftw_execute(FFTplanMany); //-Perform FFT
-
-    fftw_destroy_plan(FFTplanMany); //-Destroy the plan
+    reOrder(twopFFT,twopBuf,twopInfo);
+    fftw_execute(FFTplanMany);
+    fftw_destroy_plan(FFTplanMany);
   }
 
   free(twopBuf);
@@ -514,8 +508,10 @@ int main(int argc, char *argv[]){
   }
 
   free(twopMom);
-  for(int i=0;i<Nmoms;i++) free(mom[i]);
+  for(int i=0;i<MAX_MOM;i++) free(mom[i]);
   free(mom);
+  for(int i=0;i<sV;i++) free(momALL[i]);
+  free(momALL);
 
   printf("Extracting Two-point function and FT completed successfully.\n");
 

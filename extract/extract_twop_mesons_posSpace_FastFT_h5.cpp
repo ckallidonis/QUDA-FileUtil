@@ -53,7 +53,6 @@ int createMomenta(int **mom, int L, int Qsq){
             mom[totMom][0] = nx;
             mom[totMom][1] = ny;
             mom[totMom][2] = nz;
-            //            printf("Mom %d: %+d %+d %+d\n",totMom+1,mom[totMom][0],mom[totMom][1],mom[totMom][2]);
             totMom++;
           }
         }
