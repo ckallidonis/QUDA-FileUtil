@@ -1,21 +1,22 @@
 #!/bin/bash
 
-if [ $# -ne 9 ]
+if [ $# -ne 10 ]
 then
-    echo "Usage: $0 <extract_dir> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir>  <baryon, see list below>"
+    echo "Usage: $0 <extract_dir> <h5_file-prefix> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir>  <baryon, see list below>"
     printf "  0: all\n  1: nucl_nucl\n  2: nucl_roper\n  3: roper_nucl\n  4: roper_roper\n  5: deltapp_deltamm_11\n  6: deltapp_deltamm_22\n  7: deltapp_deltamm_33\n  8: deltap_deltaz_11\n  9: deltap_deltaz_22\n 10: deltap_deltaz_33\n"
     exit
 fi
 
 DIR=$1
-OUT_DIR=$2
-SRC_LIST=$3
-MOM_LIST=$4
-CONF=$5
-T=$6
-Qsq=$7
-EXE_DIR=$8
-bar=$9
+H5_PRE=$2
+OUT_DIR=$3
+SRC_LIST=$4
+MOM_LIST=$5
+CONF=$6
+T=$7
+Qsq=$8
+EXE_DIR=$9
+bar=${10}
 
 LIST[1]="nucl_nucl"
 LIST[2]="nucl_roper"
@@ -40,7 +41,7 @@ fi
 
 while read x y z t
 do 
-    FILE=${DIR}/twop.${CONF}_baryons_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
+    FILE=${DIR}/${H5_PRE}.${CONF}_baryons_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
 
     src=sx${x}sy${y}sz${z}st${t}
     EX_DIR=${DIR}/${src}
