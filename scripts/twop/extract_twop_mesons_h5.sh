@@ -1,21 +1,22 @@
 #!/bin/bash
 
-if [ $# -ne 9 ]
+if [ $# -ne 10 ]
 then
-    echo "Usage: $0 <extract_dir> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir> <meson, see list below"
+    echo "Usage: $0 <extract_dir> <h5_file-prefix> <out_dir> <src_list> <mom_list> <conf> <T> <Qsq> <exe_dir> <meson, see list below"
     printf "  0: all\n  1: pseudoscalar\n  2: scalar\n  3: g5g1\n  4: g5g2\n  5: g5g3\n  6: g5g4\n  7: g1\n  8: g2\n  9: g3\n 10: g4\n"
     exit
 fi
 
 DIR=$1
-OUT_DIR=$2
-SRC_LIST=$3
-MOM_LIST=$4
-CONF=$5
-T=$6
-Qsq=$7
-EXE_DIR=$8
-mes=$9
+H5_PRE=$2
+OUT_DIR=$3
+SRC_LIST=$4
+MOM_LIST=$5
+CONF=$6
+T=$7
+Qsq=$8
+EXE_DIR=$9
+mes=${10}
 
 LIST[1]="pseudoscalar"
 LIST[2]="scalar"
@@ -41,7 +42,7 @@ fi
 
 while read x y z t
 do 
-    FILE=${DIR}/twop.${CONF}_mesons_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
+    FILE=${DIR}/${H5_PRE}.${CONF}_mesons_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
 
     src=sx${x}sy${y}sz${z}st${t}
     EX_DIR=${DIR}/${src}
