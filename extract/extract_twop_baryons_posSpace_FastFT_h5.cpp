@@ -12,6 +12,8 @@
 #include <hdf5.h>
 #include <typeinfo>
 #include <fftw3.h>
+#include <limits.h>
+#include <stdint.h>
 
 #define Ntype 10
 #define M 16
@@ -28,7 +30,7 @@ typedef struct{
 
 
 void usage(char exe[]){
-  printf("%s:\n<.h5-file>\n<output_dir>\n<baryon-type>\n  nucl_nucl\n  nucl_roper\n  roper_nucl\n  roper_roper\n  deltapp_deltamm_11\n  deltapp_deltamm_22\n  deltapp_deltamm_33\n  deltap_deltaz_11\n  deltap_deltaz_22\n  deltap_deltaz_33\n  all\n",exe);
+  printf("%s:\n<.h5-file>\n<output_prefix>\n<baryon-type>\n  nucl_nucl\n  nucl_roper\n  roper_nucl\n  roper_roper\n  deltapp_deltamm_11\n  deltapp_deltamm_22\n  deltapp_deltamm_33\n  deltap_deltaz_11\n  deltap_deltaz_22\n  deltap_deltaz_33\n  all\n",exe);
   printf("<conf_traj>\n<src_x>\n<src_y>\n<src_z>\n<src_t>\n<L>\n<T>\n<Qsq>\n<output format: ASCII/HDF5>\n");
   exit(-1);
 }
@@ -64,9 +66,9 @@ int createMomenta(int **mom, int L, int Qsq){
 }
 //=================================================================================================
 
-int createALLMomenta(int **momALL, int L, int Qsq){
+long int createALLMomenta(int **momALL, int L, int Qsq){
 
-  int momIdx = 0;
+  long int momIdx = 0;
   for(int pz = 0; pz < L; pz++)
     for(int py = 0; py < L; py++)
       for(int px = 0; px < L; px++){
@@ -170,21 +172,20 @@ void writeTwop_HDF5(Float *twopBaryons, char *fname, int **mom, Info info){
 void reOrder(Float *twopFFT, Float *twopBuf, Info info){
 
   int Np = info.Np;
-  int Ns = info.Ns;
   int T  = info.T;
   int L  = info.L;
-  int SpV = L*L*L;
+  long int SpV = (long int)L*L*L;
 
-  for(int bar=Ns;bar<(Np+Ns);bar++){
-    int bidx = (bar%Np);
+  for(int bar=0;bar<Np;bar++){
     for(int pr=0;pr<2;pr++){
-      for(int v=0;v<SpV;v++){
-	for(int t=0;t<T;t++){
+      for(int t=0;t<T;t++){
+	for(int v=0;v<SpV;v++){
 	  for(int gm=0;gm<M;gm++){
-	    twopFFT[ 0 + 2*v + 2*SpV*t + 2*SpV*T*gm + 2*SpV*T*M*pr + 2*SpV*T*M*2*bidx ] = twopBuf[ 0 + 2*gm + 2*M*v + 2*M*SpV*t + 2*M*SpV*T*pr + 2*M*SpV*T*2*bidx ];
-	    twopFFT[ 1 + 2*v + 2*SpV*t + 2*SpV*T*gm + 2*SpV*T*M*pr + 2*SpV*T*M*2*bidx ] = twopBuf[ 1 + 2*gm + 2*M*v + 2*M*SpV*t + 2*M*SpV*T*pr + 2*M*SpV*T*2*bidx ];
-	  }}}
-    }
+	    for(int reim=0;reim<2;reim++){
+	      unsigned long long Bufpos = (unsigned long long)(reim + 2*gm + 2*M*v   + 2*M*SpV*t  + 2*M*SpV*T*pr + 2*M*SpV*T*2*bar);
+	      unsigned long long FFTpos = (unsigned long long)(reim + 2*v  + 2*SpV*t + 2*SpV*T*gm + 2*SpV*T*M*pr + 2*SpV*T*M*2*bar);
+	      twopFFT[FFTpos] = twopBuf[Bufpos];
+	    }}}}}
   }
 
 }
@@ -193,10 +194,9 @@ void reOrder(Float *twopFFT, Float *twopBuf, Info info){
 void copyTwopToWriteBuf(Float *twopMom, Float *twopFFT, int **momALL, int **mom, Info info){
 
   int Np = info.Np;
-  int Ns = info.Ns;
   int T  = info.T;
   int L  = info.L;
-  int SpV = L*L*L;
+  long int SpV = (long int)L*L*L;
   int x_src = info.src_pos[0];
   int y_src = info.src_pos[1];
   int z_src = info.src_pos[2];
@@ -226,18 +226,20 @@ void copyTwopToWriteBuf(Float *twopMom, Float *twopFFT, int **momALL, int **mom,
       phase[0] = cos(expn);
       phase[1] = sin(expn);
 
-      for(int bar=Ns;bar<(Np+Ns);bar++){
-	int bidx = (bar%Np);
+      for(int bar=0;bar<Np;bar++){
 	for(int pr=0;pr<2;pr++){
 	  for(int t=0;t<T;t++){
 	    int ts = (t + t_src)%T;
 	    for(int gm=0;gm<M;gm++){
-	      twopMom[ 0 + 2*gm + 2*M*t + 2*M*T*imom + 2*M*T*Nmoms*pr + 2*M*T*Nmoms*2*bidx ] =
-		twopFFT[ 0 + 2*ip + 2*SpV*ts + 2*SpV*T*gm + 2*SpV*T*M*pr + 2*SpV*T*M*2*bidx ]*phase[0] - twopFFT[ 1 + 2*ip + 2*SpV*ts + 2*SpV*T*gm + 2*SpV*T*M*pr + 2*SpV*T*M*2*bidx ]*phase[1];
+	      unsigned long long Mompos_Re = (unsigned long long)(0ULL + 2*gm + 2*M*t    + 2*M*T*imom + 2*M*T*Nmoms*pr + 2*M*T*Nmoms*2*bar);
+	      unsigned long long Mompos_Im = (unsigned long long)(1ULL + 2*gm + 2*M*t    + 2*M*T*imom + 2*M*T*Nmoms*pr + 2*M*T*Nmoms*2*bar);
+	      unsigned long long FFTpos_Re = (unsigned long long)(0ULL + 2*ip + 2*SpV*ts + 2*SpV*T*gm + 2*SpV*T*M*pr   + 2*SpV*T*M*2*bar);
+	      unsigned long long FFTpos_Im = (unsigned long long)(1ULL + 2*ip + 2*SpV*ts + 2*SpV*T*gm + 2*SpV*T*M*pr   + 2*SpV*T*M*2*bar);
 
-	      twopMom[ 1 + 2*gm + 2*M*t + 2*M*T*imom + 2*M*T*Nmoms*pr + 2*M*T*Nmoms*2*bidx ] =
-		twopFFT[ 0 + 2*ip + 2*SpV*ts + 2*SpV*T*gm + 2*SpV*T*M*pr + 2*SpV*T*M*2*bidx ]*phase[1] + twopFFT[ 1 + 2*ip + 2*SpV*ts + 2*SpV*T*gm + 2*SpV*T*M*pr + 2*SpV*T*M*2*bidx ]*phase[0];
-	    }}}}
+	      twopMom[ Mompos_Re ] = twopFFT[ FFTpos_Re ]*phase[0] - twopFFT[ FFTpos_Im ]*phase[1];
+	      twopMom[ Mompos_Im ] = twopFFT[ FFTpos_Re ]*phase[1] + twopFFT[ FFTpos_Im ]*phase[0];
+	    }}}
+      }
       imom++;
     }//-if
   }
@@ -263,10 +265,10 @@ int main(int argc, char *argv[]){
   strcpy(twop_type[9],"deltap_deltaz_33");
   strcpy(twop_type[10],"all");
 
-  char *h5_file, *outdir, *twop, *conf, *outform;
+  char *h5_file, *outpre, *twop, *conf, *outform;
   int src[4];
   asprintf(&h5_file,"%s",argv[1]);
-  asprintf(&outdir ,"%s",argv[2]);
+  asprintf(&outpre ,"%s",argv[2]);
   asprintf(&twop   ,"%s",argv[3]);
   asprintf(&conf   ,"%s",argv[4]);
   src[0] = atoi(argv[5]);
@@ -302,7 +304,7 @@ int main(int argc, char *argv[]){
 
   printf("Got the following input:\n");
   printf("h5_file: %s\n",h5_file);
-  printf("outdir: %s\n",outdir);
+  printf("output prefix: %s\n",outpre);
   printf("twop: %d - %s\n",dt,twop);
   printf("conf traj: %s\n",conf);
   printf("src [x,y,z,t] = [%02d,%02d,%02d,%02d]\n",src[0],src[1],src[2],src[3]);
@@ -313,8 +315,8 @@ int main(int argc, char *argv[]){
   //-----------------------------------------
 
   //-Define useful stuff
-  int sV = L*L*L;
-  int V = sV*T;
+  long int SpV = (long int)L*L*L;
+  long int V   = (long int)SpV*T;
   int Np, Ns;
   bool READ_ALL;
   if(strcmp(twop,"all")==0){
@@ -339,7 +341,7 @@ int main(int argc, char *argv[]){
   int **mom, **momALL;
   
   mom    = (int**) malloc(MAX_MOM*sizeof(int*));
-  momALL = (int**) malloc(sV*sizeof(int*));
+  momALL = (int**) malloc(SpV*sizeof(int*));
   if(mom==NULL){
     fprintf(stderr,"Cannot allocate mom, top-level\n");
     exit(-1);
@@ -356,7 +358,7 @@ int main(int argc, char *argv[]){
     }
     for(int j=0;j<3;j++) mom[i][j] = 0;
   }
-  for(int i=0;i<sV;i++){
+  for(int i=0;i<SpV;i++){
     momALL[i] = (int*) malloc(3*sizeof(int));
     if(momALL[i] == NULL){
       fprintf(stderr,"Cannot allocate momALL[%d]\n",i);
@@ -370,8 +372,8 @@ int main(int argc, char *argv[]){
   twopInfo.Nmoms = Nmoms;
   
   int Qsq_ALL = 3*L*L/4;
-  int Nmoms_ALL = createALLMomenta(momALL, L, Qsq_ALL);
-  printf("All Momenta array created, Nmoms_ALL = %d, Sp.Vol = %d\n",Nmoms_ALL,sV);
+  long int Nmoms_ALL = createALLMomenta(momALL, L, Qsq_ALL);
+  printf("All Momenta array created, Nmoms_ALL = %ld, Sp.Vol = %ld\n",Nmoms_ALL,SpV);
   //----------------------------------------------
 
   //-Open the h5 file
@@ -387,7 +389,10 @@ int main(int argc, char *argv[]){
   char *group_dir;
   char *dset_name;
 
-  Float *twopBuf = (Float*) malloc(Np*2*V*M*2*sizeof(Float));
+  unsigned long long buflen = (unsigned long long)(2)*V*M*2*Np;
+  printf("Buffer length: %lld\n",buflen);
+
+  Float *twopBuf = (Float*) calloc(buflen,sizeof(Float));
   if(twopBuf == NULL){
     fprintf(stderr,"Cannot allocate twopBuf. Exiting\n");
     exit(-1);
@@ -395,13 +400,14 @@ int main(int argc, char *argv[]){
 
   asprintf(&dset_name,"twop-baryon");
 
+  printf("Reading Dataset...\n");
   for(int bar=Ns;bar<(Np+Ns);bar++){
     asprintf(&group_dir,"/conf_%s/sx%02dsy%02dsz%02dst%02d/%s",conf,src[0],src[1],src[2],src[3],twop_type[bar]);
     group_id = H5Gopen(file_id, group_dir, H5P_DEFAULT);
     dset_id = H5Dopen(group_id, dset_name, H5P_DEFAULT);
     
     herr_t status = H5Dread( dset_id, DATATYPE_H5, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(twopBuf[(bar%Np)*2*V*M*2]) );
-
+    
     if (status<0){
       fprintf (stderr, "Dataset read failed!\n");
       status = H5Gclose(group_id);
@@ -413,7 +419,7 @@ int main(int argc, char *argv[]){
     H5Dclose(dset_id);
     H5Gclose(group_id);
   }
-  printf("Dataset read successfully\n");
+  printf("Dataset reading successful\n");
   //----------------------------------------------
  
   //-Perform the FT
@@ -428,7 +434,7 @@ int main(int argc, char *argv[]){
   for(int i=0;i<rank;i++) idist *= nRank[i];
   int odist = idist;
 
-  Float *twopFFT = (Float*) malloc(2*V*M*2*Np*sizeof(Float)); // Allocate the Momentum-Space Buffer
+  Float *twopFFT = (Float*) calloc(buflen,sizeof(Float));
   if(twopFFT == NULL){
     fprintf(stderr,"Cannot allocate twopFFT. Exiting\n");
     exit(-1);
@@ -442,9 +448,11 @@ int main(int argc, char *argv[]){
 						 ostride, odist,
 						 FFTW_FORWARD, FFTW_MEASURE);   //-Create the FFT plan
 
+    printf("Reordering data...\n");
     reOrder(twopFFT,twopBuf,twopInfo); //-Reorder the two-point function buffer to make the FFT more efficiently, MUST do this AFTER creating the plan
+    printf("Reordering successful.\n");
     fftwf_execute(FFTplanMany);        //-Perform FFT
-    fftwf_destroy_plan(FFTplanMany);  //-Destroy the plan
+    fftwf_destroy_plan(FFTplanMany);   //-Destroy the plan
   }
   if( typeid(Float) == typeid(double) ){
     fftw_plan FFTplanMany = fftw_plan_many_dft(rank, nRank, howmany,
@@ -454,7 +462,9 @@ int main(int argc, char *argv[]){
 					       ostride, odist,
 					       FFTW_FORWARD, FFTW_MEASURE);
     
+    printf("Reordering data...\n");
     reOrder(twopFFT,twopBuf,twopInfo);
+    printf("Reordering successful.\n");
     fftw_execute(FFTplanMany);
     fftw_destroy_plan(FFTplanMany);
   }
@@ -464,14 +474,18 @@ int main(int argc, char *argv[]){
   //----------------------------------------------
   
   //-Copy the twopFFT buffer to the twopMom buffer
-  Float *twopMom = (Float*) malloc(2*Np*Nmoms*T*M*2*sizeof(Float));
+  unsigned long long Momlen = (unsigned long long)(2)*Np*Nmoms*T*M*2;
+  printf("Momentum buffer length: %lld\n",Momlen);
+
+  Float *twopMom = (Float*) calloc(Momlen,sizeof(Float));
   if(twopMom == NULL){
     fprintf(stderr,"Cannot allocate twopMom. Exiting\n");
     exit(-1);
   }
-  memset(twopMom,0,2*Np*Nmoms*T*M*2*sizeof(Float));
 
+  printf("Copying to write buffer...\n");
   copyTwopToWriteBuf(twopMom, twopFFT, momALL, mom, twopInfo);
+  printf("Copying successful.\n");
 
   free(twopFFT);
   //----------------------------------------------
@@ -479,11 +493,11 @@ int main(int argc, char *argv[]){
   //-Write the output file
   char *file;
   if(h5out){
-    asprintf(&file,"%s/twop.%s_%s_Qsq%d_SS.%02d.%02d.%02d.%02d.h5",outdir, conf, READ_ALL ? "baryons" : twop_type[dt], Qsq, src[0], src[1], src[2], src[3]);
+    asprintf(&file,"%s.%s_%s_Qsq%d_SS.%02d.%02d.%02d.%02d.h5",outpre, conf, READ_ALL ? "baryons" : twop_type[dt], Qsq, src[0], src[1], src[2], src[3]);
     writeTwop_HDF5(twopMom, file, mom, twopInfo);
   }
   else{
-    asprintf(&file,"%s/twop.%s.%s.SS.%02d.%02d.%02d.%02d.dat",outdir, conf, READ_ALL ? "baryons" : twop_type[dt], src[0], src[1], src[2], src[3]);
+    asprintf(&file,"%s.%s.%s.SS.%02d.%02d.%02d.%02d.dat",outpre, conf, READ_ALL ? "baryons" : twop_type[dt], src[0], src[1], src[2], src[3]);
 
     FILE *outp;
     if( (outp=fopen(file,"w")) == NULL ){
@@ -510,7 +524,7 @@ int main(int argc, char *argv[]){
   free(twopMom);
   for(int i=0;i<MAX_MOM;i++) free(mom[i]);
   free(mom);
-  for(int i=0;i<sV;i++) free(momALL[i]);
+  for(int i=0;i<SpV;i++) free(momALL[i]);
   free(momALL);
 
   printf("Extracting Two-point function and FT completed successfully.\n");
