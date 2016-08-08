@@ -16,21 +16,21 @@ TSINK=$6
 PROJ=$7
 Qsq=$8
 EXE_DIR=$9
-EX_TYPE=$10
+EX_TYPE=${10}
 
-if [ $EX_TYPE - eq 0 ]
+if [ ${EX_TYPE} -eq 0 ]
 then
     EX_LIST="ultra_local noether oneD"
 fi
-if [ $EX_TYPE - eq 1 ]
+if [ ${EX_TYPE} -eq 1 ]
 then
     EX_LIST="ultra_local"
 fi
-if [ $EX_TYPE - eq 2 ]
+if [ ${EX_TYPE} -eq 2 ]
 then
     EX_LIST="noether"
 fi
-if [ $EX_TYPE - eq 3 ]
+if [ ${EX_TYPE} -eq 3 ]
 then
     EX_LIST="oneD"
 fi
