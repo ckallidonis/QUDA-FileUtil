@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -ne 6 ]
+if [ $# -ne 7 ]
 then
     echo "Usage: $0 <h5-file> <extract_dir> <out_dir> <mom_list> <exe_dir> <T> <traj>"
     exit
