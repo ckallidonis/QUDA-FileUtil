@@ -1,6 +1,8 @@
 *~
 extract/*~
 convert/*~
+extract/*.o
+convert/*.o
 scripts/threep/*~
 scripts/twop/*~
 scripts/loop/*~
