@@ -119,7 +119,7 @@ void writeTwop_HDF5(Float *twopMesons, char *fname, int **mom, Info info){
   hid_t group3_id;
   hid_t group4_id;
 
-  hsize_t dims[2] = {T,2}; // Size of the dataspace
+  hsize_t dims[2] = {(hsize_t)T,2}; // Size of the dataspace
 
   for(int mes=Ns;mes<(Np+Ns);mes++){
     int bidx = (mes%Np);

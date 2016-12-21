@@ -57,7 +57,7 @@ void writeTwop_HDF5(Float *twopMesons, char *h5_file, int **mom, Info info){
   hid_t group3_id;
   hid_t group4_id;
 
-  hsize_t dims[2] = {T,2}; // Size of the dataspace
+  hsize_t dims[2] = {(hsize_t)T,2}; // Size of the dataspace
 
   for(int mes=0;mes<info.N_PART;mes++){
     char *group3_tag;

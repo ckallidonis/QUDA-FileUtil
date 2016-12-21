@@ -127,11 +127,7 @@ void writeThrp_HDF5(Float *Thrp_local_HDF5, Float *Thrp_noether_HDF5, Float **Th
   hid_t group7_id;
   hid_t group8_id;
 
-  hsize_t dims[3],start[3];
-
-  start[0] = 0;
-  start[1] = 0;
-  start[2] = 0;
+  hsize_t dims[3];
 
   for(int its=0;its<Nsink;its++){
     int tsink = info.tsink[its];

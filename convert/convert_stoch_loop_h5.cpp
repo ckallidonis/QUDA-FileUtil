@@ -55,7 +55,7 @@ void writeLoops_HDF5(double *buf_std_uloc, double *buf_gen_uloc, double **buf_st
   //  hsize_t start[3]  = {0,0,0};
 
   // Dimensions of the dataspace
-  hsize_t dims[3]  = {loopInfo.T, M, 2}; // Global
+  hsize_t dims[3]  = {(hsize_t)loopInfo.T, M, 2}; // Global
   //  hsize_t ldims[3] = {loopInfo.T, M, 2}; // Local
 
   hid_t file_id = H5Fcreate(fname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
