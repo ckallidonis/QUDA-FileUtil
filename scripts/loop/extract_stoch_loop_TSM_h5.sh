@@ -16,7 +16,7 @@ SUM_TYPE=$6
 PREC_TYPE=$7
 EXE_DIR=$8
 T=$9
-TRAJ=$10
+TRAJ=${10}
 
 EX_DIR=${DIR}/stoch_hdf5_extracted
 
@@ -43,9 +43,13 @@ do
 	do
 	    EX_FILE=${EX_DIR}/loop_stoch.${TRAJ}_${STRING}${Ns}_${tp}.${mx}_${my}_${mz}.loop.dat
 	                      
-	    ${EXE_DIR}/extract_stoch_loop_TSM_h5 ${FILE} ${EX_FILE} ${tp} ${mx} ${my} ${mz} ${TRAJ} ${Ns} ${T}
+	    C="${EXE_DIR}/extract_stoch_loop_TSM_h5 ${FILE} ${EX_FILE} ${tp} ${mx} ${my} ${mz} ${TRAJ} ${Ns} ${SUM_TYPE} ${T}"
+
+	    eval $C
 
 	    cat ${EX_FILE} >> ${OUT_FILE}
 	done < ${MOM_LIST}
     done
 done
+
+rm -rf ${EX_DIR}
