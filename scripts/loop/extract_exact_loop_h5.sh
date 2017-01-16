@@ -33,3 +33,5 @@ do
 	cat ${EX_FILE} >> ${OUT_FILE}
     done < ${MOM_LIST}
 done
+
+rm -rf ${EX_DIR}
