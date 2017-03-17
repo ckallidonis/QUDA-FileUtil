@@ -21,19 +21,28 @@ into the HDF5 format.
 
 * **scripts:**
 This folder contains scripts which:
- * run the programs that extract HDF5 files.
- * reshape files already in ASCII format into a different,
-   predefined ASCII form to ensure compatibility with the
-   extracted HDF5 files.
- * compare two- and three-point functions and disconnected
+  * run the programs that extract HDF5 files.
+  * reshape files already in ASCII format into a different,
+    predefined ASCII form to ensure compatibility with the
+    extracted HDF5 files.
+  * compare two- and three-point functions and disconnected
    quark loops.
 
 ## Dependencies
 The package requires linking to the HDF5 and FFTW libraries.
 
 ## Compilation/Installation
-The user needs to modify make.inc to contain the appropriate
-directories of the HDF5 and FFTW libraries.
+As a rule of thumb, the user should copy [make.inc.SAMPLE](make.inc.SAMPLE) and 
+[extract/make_extract.inc.SAMPLE](./extract/make_extract.inc.SAMPLE) to
+a name corresponding to the local workstation they are compiling the package.
+Then modify the new files to contain the paths to the HDF5 and FFTW libraries
+and the MPI on the local workstation and create soft links
+
+`ln -s make.inc.<local make.inc` and
+
+`ln -s extract/make_extract.inc.<local> extract/make_extract.inc`.
+
+Finally, type `make` on the main directory of the package.
 
 ## Author
 **Christos Kallidonis**.

@@ -1,5 +1,5 @@
 include ../make.inc
-
+include make_extract.inc
 
 TARGETS=extract_exact_loop_h5\
 	extract_stoch_loop_h5\
@@ -13,11 +13,6 @@ TARGETS=extract_exact_loop_h5\
 	extract_twop_baryons_HighMomForm_h5\
 	extract_twop_mesons_HighMomForm_h5\
 	extract_threep_HighMomForm_h5
-
-INCLUDE := -I/opt/cray/pe/fftw/3.3.4.10/haswell/include $(INCLUDE)
-LDFLAGS := -L/opt/cray/pe/fftw/3.3.4.10/haswell/lib $(LDFLAGS)
-LIBS := -lfftw3f -lfftw3 $(LIBS)
-
 
 all: $(TARGETS)
 

@@ -1,3 +1,5 @@
+make.inc
+extract/make_extract.inc
 *~
 extract/*~
 convert/*~
