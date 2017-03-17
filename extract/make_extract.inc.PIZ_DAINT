@@ -1,0 +1,3 @@
+INCLUDE := -I/opt/cray/pe/fftw/3.3.4.10/haswell/include $(INCLUDE)
+LDFLAGS := -L/opt/cray/pe/fftw/3.3.4.10/haswell/lib $(LDFLAGS)
+LIBS := -lfftw3f -lfftw3 $(LIBS)
