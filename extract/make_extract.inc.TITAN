@@ -1,0 +1,3 @@
+INCLUDE := -I/opt/cray/fftw/3.3.4.8/interlagos/include $(INCLUDE)
+LDFLAGS := -L/opt/cray/fftw/3.3.4.8/interlagos/lib $(LDFLAGS)
+LIBS := -lfftw3f -lfftw3 $(LIBS)
