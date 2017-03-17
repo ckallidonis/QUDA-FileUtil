@@ -21,6 +21,7 @@ TRAJ=${10}
 EX_DIR=${DIR}/stoch_hdf5_extracted
 
 mkdir -p ${EX_DIR}
+mkdir -p ${OUT_DIR}
 
 if [ ${SUM_TYPE} -eq 1 ]
 then
@@ -44,6 +45,7 @@ do
 	    EX_FILE=${EX_DIR}/loop_stoch.${TRAJ}_${STRING}${Ns}_${tp}.${mx}_${my}_${mz}.loop.dat
 	                      
 	    C="${EXE_DIR}/extract_stoch_loop_TSM_h5 ${FILE} ${EX_FILE} ${tp} ${mx} ${my} ${mz} ${TRAJ} ${Ns} ${SUM_TYPE} ${T}"
+#	    echo $C
 
 	    eval $C
 
@@ -52,4 +54,4 @@ do
     done
 done
 
-rm -rf ${EX_DIR}
+#rm -rf ${EX_DIR}

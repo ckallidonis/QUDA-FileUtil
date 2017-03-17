@@ -18,6 +18,7 @@ TRAJ=$7
 EX_DIR=${DIR}/exact_hdf5_extracted
 
 mkdir -p ${EX_DIR}
+mkdir -p ${OUT_DIR}
 
 for tp in Scalar dOp Loops LoopsCv LpsDw LpsDwCv
 do
@@ -33,5 +34,3 @@ do
 	cat ${EX_FILE} >> ${OUT_FILE}
     done < ${MOM_LIST}
 done
-
-rm -rf ${EX_DIR}
