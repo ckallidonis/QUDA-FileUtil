@@ -38,9 +38,11 @@ a name corresponding to the local workstation they are compiling the package.
 Then modify the new files to contain the paths to the HDF5 and FFTW libraries
 and the MPI on the local workstation and create soft links
 
-`ln -s make.inc.<local> make.inc` and
+`ln -s make.inc.<local> make.inc`
 
-`ln -s extract/make_extract.inc.<local> extract/make_extract.inc`.
+`cd extract`
+
+`ln -s make_extract.inc.<local> make_extract.inc`.
 
 Finally, type `make` on the main directory of the package.
 
