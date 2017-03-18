@@ -42,7 +42,7 @@ then
 
     while read x y z t
     do 
-	FILE=${PREFIX}.${CONF}_neutron_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
+	FILE=${PREFIX}${CONF}_neutron_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
 
 	src=sx${x}sy${y}sz${z}st${t}
 
@@ -87,7 +87,7 @@ then
 
     while read x y z t
     do 
-	FILE=${PREFIX}.${CONF}_neutron_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
+	FILE=${PREFIX}${CONF}_neutron_Qsq${Qsq}_SS.${x}.${y}.${z}.${t}.h5
 
 	src=sx${x}sy${y}sz${z}st${t}
 
