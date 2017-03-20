@@ -1,8 +1,11 @@
 include ../make.inc
 include make_extract.inc
 
-TARGETS=extract_exact_loop_h5\
+TARGETS=extract_exact_loop_HighMomForm_h5\
+	extract_exact_loop_h5\
+	extract_stoch_loop_HighMomForm_h5\
 	extract_stoch_loop_h5\
+	extract_stoch_loop_TSM_HighMomForm_h5\
 	extract_stoch_loop_TSM_h5\
 	extract_threep_h5\
 	extract_threep_posSpace_FastFT_h5\
@@ -16,10 +19,19 @@ TARGETS=extract_exact_loop_h5\
 
 all: $(TARGETS)
 
+extract_exact_loop_HighMomForm_h5: extract_exact_loop_HighMomForm_h5.o
+	$(CC) $< -o $@ $(LDFLAGS) $(LIBS)
+
 extract_exact_loop_h5: extract_exact_loop_h5.o
 	$(CC) $< -o $@ $(LDFLAGS) $(LIBS)
 
+extract_stoch_loop_HighMomForm_h5: extract_stoch_loop_HighMomForm_h5.o
+	$(CC) $< -o $@ $(LDFLAGS) $(LIBS)
+
 extract_stoch_loop_h5: extract_stoch_loop_h5.o
+	$(CC) $< -o $@ $(LDFLAGS) $(LIBS)
+
+extract_stoch_loop_TSM_HighMomForm_h5: extract_stoch_loop_TSM_HighMomForm_h5.o
 	$(CC) $< -o $@ $(LDFLAGS) $(LIBS)
 
 extract_stoch_loop_TSM_h5: extract_stoch_loop_TSM_h5.o
