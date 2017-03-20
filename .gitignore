@@ -15,6 +15,7 @@ scripts/threep/#*
 scripts/twop/#*
 scripts/loop/#*
 extract/extract_exact_loop_h5
+extract/extract_exact_loop_HighMomForm_h5
 extract/extract_stoch_loop_TSM_h5
 extract/extract_stoch_loop_h5
 extract/extract_threep_h5
