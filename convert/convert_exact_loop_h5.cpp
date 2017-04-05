@@ -20,7 +20,7 @@ typedef struct{
 } Info;
 
 void usage(char exe[]){
-  printf("%s: <.h5-file prefix> <loop in_dir> <mom_list> <NGPU> <Nmoms> <Qsq> <T> <conf-trajectory>\n",exe);
+  printf("%s: <.h5-file prefix> <ASCII loop prefix> <mom_list> <NGPU> <Nmoms> <Qsq> <T> <conf-trajectory>\n",exe);
   exit(-1);
 }
 //=============================================================
