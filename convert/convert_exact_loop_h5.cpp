@@ -1,7 +1,8 @@
 /* Christos Kallidonis                                */
-/* February 2016                                      */
+/* April 2017                                         */
 /* This program reads disconnected loops written      */
 /* in ASCII format and converts them into HDF5 format */
+/* This is for the exact part of the loop!            */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,13 +14,13 @@
 #define LTYPE 6
 
 typedef struct{
-  int Nstoch,Nstep,Nprint,Nmoms,Qsq,T,conf;
+  int Nmoms,Qsq,T,conf;
   char loop_type[LTYPE][256];
   bool loop_oneD[LTYPE];
 } Info;
 
 void usage(char exe[]){
-  printf("%s: <.h5-file prefix> <ASCII loop prefix> <mom_list> <Nstoch> <Nstep> <NGPU> <Nmoms> <Qsq> <T> <conf-trajectory>\n",exe);
+  printf("%s: <.h5-file prefix> <ASCII loop prefix> <mom_list> <NGPU> <Nmoms> <Qsq> <T> <conf-trajectory>\n",exe);
   exit(-1);
 }
 //=============================================================
@@ -30,12 +31,12 @@ void errorMsg(const char msg[]){
 }
 //=============================================================
 
-void getWriteBuf(double *writeBuf, double *loopBuf, int T, int Nmoms, int imom, int iPrint){
+void getWriteBuf(double *writeBuf, double *loopBuf, int T, int Nmoms, int imom){
 
   for(int it=0;it<T;it++){
     for(int im=0;im<M;im++){
-      writeBuf[0+2*im+2*M*it] = loopBuf[0+2*imom+2*Nmoms*it+2*Nmoms*T*im+2*Nmoms*T*M*iPrint];
-      writeBuf[1+2*im+2*M*it] = loopBuf[1+2*imom+2*Nmoms*it+2*Nmoms*T*im+2*Nmoms*T*M*iPrint];
+      writeBuf[0+2*im+2*M*it] = loopBuf[0+2*imom+2*Nmoms*it+2*Nmoms*T*im];
+      writeBuf[1+2*im+2*M*it] = loopBuf[1+2*imom+2*Nmoms*it+2*Nmoms*T*im];
     }
   }
 }
@@ -44,10 +45,8 @@ void getWriteBuf(double *writeBuf, double *loopBuf, int T, int Nmoms, int imom, 
 void writeLoops_HDF5(double *buf_std_uloc, double *buf_gen_uloc, double **buf_std_oneD, double **buf_std_csvC, double **buf_gen_oneD, double **buf_gen_csvC, char *file_pref, int **momQsq, Info loopInfo){
 
   char fname[512];
-  int Nprint;
 
-  Nprint = loopInfo.Nprint;
-  sprintf(fname,"%s.%04d_Ns%04d_step%04d_Qsq%d.h5",file_pref,loopInfo.conf,loopInfo.Nstoch,loopInfo.Nstep,loopInfo.Qsq);
+  sprintf(fname,"%s.%04d_exact_Qsq%d.h5",file_pref,loopInfo.conf,loopInfo.Qsq);
 
   double *loopBuf = NULL;
   double *writeBuf = (double*) malloc(loopInfo.T*M*2*sizeof(double));
@@ -67,71 +66,63 @@ void writeLoops_HDF5(double *buf_std_uloc, double *buf_gen_uloc, double **buf_st
   hid_t group2_id;
   hid_t group3_id;
   hid_t group4_id;
-  hid_t group5_id;
-
-  for(int iPrint=0;iPrint<Nprint;iPrint++){
-    char *group2_tag;
-    asprintf(&group2_tag,"Nstoch_%04d",(iPrint+1)*loopInfo.Nstep);
-    group2_id = H5Gcreate(group1_id, group2_tag, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     
-    for(int it=0;it<LTYPE;it++){
+  for(int it=0;it<LTYPE;it++){
+    char *group2_tag;
+    asprintf(&group2_tag,"%s",loopInfo.loop_type[it]);
+    group2_id = H5Gcreate(group1_id, group2_tag, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+    for(int imom=0;imom<loopInfo.Nmoms;imom++){
       char *group3_tag;
-      asprintf(&group3_tag,"%s",loopInfo.loop_type[it]);
+      asprintf(&group3_tag,"mom_xyz_%+d_%+d_%+d",momQsq[imom][0],momQsq[imom][1],momQsq[imom][2]);
       group3_id = H5Gcreate(group2_id, group3_tag, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-      for(int imom=0;imom<loopInfo.Nmoms;imom++){
-        char *group4_tag;
-        asprintf(&group4_tag,"mom_xyz_%+d_%+d_%+d",momQsq[imom][0],momQsq[imom][1],momQsq[imom][2]);
-        group4_id = H5Gcreate(group3_id, group4_tag, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+      if(loopInfo.loop_oneD[it]){
+	for(int mu=0;mu<4;mu++){
+	  if(strcmp(loopInfo.loop_type[it],"Loops")==0)   loopBuf = buf_std_oneD[mu];
+	  if(strcmp(loopInfo.loop_type[it],"LoopsCv")==0) loopBuf = buf_std_csvC[mu];
+	  if(strcmp(loopInfo.loop_type[it],"LpsDw")==0)   loopBuf = buf_gen_oneD[mu];
+	  if(strcmp(loopInfo.loop_type[it],"LpsDwCv")==0) loopBuf = buf_gen_csvC[mu];
 
-	if(loopInfo.loop_oneD[it]){
-          for(int mu=0;mu<4;mu++){
-            if(strcmp(loopInfo.loop_type[it],"Loops")==0)   loopBuf = buf_std_oneD[mu];
-            if(strcmp(loopInfo.loop_type[it],"LoopsCv")==0) loopBuf = buf_std_csvC[mu];
-            if(strcmp(loopInfo.loop_type[it],"LpsDw")==0)   loopBuf = buf_gen_oneD[mu];
-            if(strcmp(loopInfo.loop_type[it],"LpsDwCv")==0) loopBuf = buf_gen_csvC[mu];
+	  char *group4_tag;
+	  asprintf(&group4_tag,"dir_%02d",mu);
+	  group4_id = H5Gcreate(group3_id, group4_tag, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-            char *group5_tag;
-            asprintf(&group5_tag,"dir_%02d",mu);
-            group5_id = H5Gcreate(group4_id, group5_tag, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	  hid_t filespace  = H5Screate_simple(3, dims, NULL);
+	  hid_t dataset_id = H5Dcreate(group4_id, "loop", H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	  //            filespace = H5Dget_space(dataset_id);
 
-            hid_t filespace  = H5Screate_simple(3, dims, NULL);
-            hid_t dataset_id = H5Dcreate(group5_id, "loop", H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-	    //            filespace = H5Dget_space(dataset_id);
+	  getWriteBuf(writeBuf, loopBuf, loopInfo.T, loopInfo.Nmoms, imom);
 
-            getWriteBuf(writeBuf, loopBuf, loopInfo.T, loopInfo.Nmoms, imom, iPrint);
-
-            herr_t status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, filespace, H5P_DEFAULT, writeBuf);
-	    if(status<0) errorMsg("File writing NOT SUCCESSFUL.\n");
-
-            H5Dclose(dataset_id);
-            H5Sclose(filespace);
-            H5Gclose(group5_id);
-          }//-mu
-	}//-if
-	else{
-          if(strcmp(loopInfo.loop_type[it],"Scalar")==0) loopBuf = buf_std_uloc;
-          if(strcmp(loopInfo.loop_type[it],"dOp")==0)    loopBuf = buf_gen_uloc;
-
-          hid_t filespace  = H5Screate_simple(3, dims, NULL);
-          hid_t dataset_id = H5Dcreate(group4_id, "loop", H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-	  //          filespace = H5Dget_space(dataset_id);
-
-	  getWriteBuf(writeBuf, loopBuf, loopInfo.T, loopInfo.Nmoms, imom, iPrint);
-
-          herr_t status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, filespace, H5P_DEFAULT, writeBuf);
+	  herr_t status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, filespace, H5P_DEFAULT, writeBuf);
 	  if(status<0) errorMsg("File writing NOT SUCCESSFUL.\n");
 
-          H5Dclose(dataset_id);
-          H5Sclose(filespace);
-        }
-        H5Gclose(group4_id);
-      }//-imom
-      H5Gclose(group3_id);
-    }//-it
+	  H5Dclose(dataset_id);
+	  H5Sclose(filespace);
+	  H5Gclose(group4_id);
+	}//-mu
+      }//-if
+      else{
+	if(strcmp(loopInfo.loop_type[it],"Scalar")==0) loopBuf = buf_std_uloc;
+	if(strcmp(loopInfo.loop_type[it],"dOp")==0)    loopBuf = buf_gen_uloc;
 
+	hid_t filespace  = H5Screate_simple(3, dims, NULL);
+	hid_t dataset_id = H5Dcreate(group3_id, "loop", H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	//          filespace = H5Dget_space(dataset_id);
+
+	getWriteBuf(writeBuf, loopBuf, loopInfo.T, loopInfo.Nmoms, imom);
+
+	herr_t status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, filespace, H5P_DEFAULT, writeBuf);
+	if(status<0) errorMsg("File writing NOT SUCCESSFUL.\n");
+
+	H5Dclose(dataset_id);
+	H5Sclose(filespace);
+      }
+      H5Gclose(group3_id);
+    }//-imom
     H5Gclose(group2_id);
-  }//-iPrint
+  }//-it
+
   H5Gclose(group1_id);
   H5Fclose(file_id);
 
@@ -142,7 +133,7 @@ void writeLoops_HDF5(double *buf_std_uloc, double *buf_gen_uloc, double **buf_st
 
 int main(int argc, char *argv[]){
 
-  if(argc!=11) usage(argv[0]);
+  if(argc!=9) usage(argv[0]);
 
   //-Read and define input
   char loop_type[LTYPE][256];
@@ -158,40 +149,32 @@ int main(int argc, char *argv[]){
   asprintf(&h5_file,"%s" ,argv[1]);
   asprintf(&in_loop,"%s"  ,argv[2]);
   asprintf(&mom_list,"%s",argv[3]);
-  int Nstoch = atoi(argv[4]);
-  int Nstep  = atoi(argv[5]);
-  int NGPU   = atoi(argv[6]);
-  int Nmoms  = atoi(argv[7]);
-  int Qsq    = atoi(argv[8]);
-  int T      = atoi(argv[9]);
-  int conf   = atoi(argv[10]);
+  int NGPU   = atoi(argv[4]);
+  int Nmoms  = atoi(argv[5]);
+  int Qsq    = atoi(argv[6]);
+  int T      = atoi(argv[7]);
+  int conf   = atoi(argv[8]);
 
   if(T%NGPU != 0) errorMsg("Error: NGPU MUST divide T exactly. Exiting.\n");
   int locT = T/NGPU;
-
-  if(Nstoch%Nstep != 0) errorMsg("Error: Nstep MUST divide Nstoch exactly. Exiting.\n");
-  int Nprint = Nstoch/Nstep;
 
   printf("Got the following input:\n");
   printf("h5_file prefix: %s\n",h5_file);
   printf("ASCII in_loop: %s\n",in_loop);
   printf("momenta list: %s\n",mom_list);
-  printf("Nstoch = %d\n",Nstoch);
-  printf("Nstep  = %d\n",Nstep);
   printf("NGPU   = %d\n",NGPU);
   printf("Nmoms  = %d\n",Nmoms);
   printf("Qsq    = %d\n",Qsq);
   printf("T      = %d\n",T);
   printf("conf   = %d\n",conf);
   printf("locT   = %d\n",locT);
-  printf("Nprint = %d\n",Nprint);
   //-------------------------------------
 
   //-Allocate the write buffers
   double *buf_std_uloc,*buf_gen_uloc,*tmp_buf_uloc;
   double **buf_std_oneD,**buf_gen_oneD,**buf_std_csvC,**buf_gen_csvC,**tmp_buf_oneD;
 
-  size_t buf_bytes = 2*Nmoms*T*M*Nprint*sizeof(double);
+  size_t buf_bytes = 2*Nmoms*T*M*sizeof(double);
 
   if( (tmp_buf_uloc = (double*) malloc(buf_bytes))==NULL ) errorMsg("Allocation of buffer tmp_buf_uloc failed.\n");
   if( (buf_std_uloc = (double*) malloc(buf_bytes))==NULL ) errorMsg("Allocation of buffer buf_std_uloc failed.\n");
@@ -231,41 +214,38 @@ int main(int argc, char *argv[]){
 
   printf("Reading ASCII Loops...\n");
   for(int lt=0;lt<LTYPE;lt++){
-    for(int iPrint=0;iPrint<Nprint;iPrint++){
-      int sVec = (iPrint+1)*Nstep;
 
-      for(int iGPU=0;iGPU<NGPU;iGPU++){
-	asprintf(&ASCII_file,"%s_%s.loop.%04d.%d_%d",in_loop,loop_type[lt],sVec,NGPU,iGPU);
-	printf("Reading loop file %s\n",ASCII_file);
-	if( (p_loop = fopen(ASCII_file,"r"))==NULL ) errorMsg("Cannot open loop file for reading. Exiting.\n");
-
-	if(loop_oneD[lt]){
-	  for(int mu=0;mu<DIR;mu++){
-	    for(int imom=0;imom<Nmoms;imom++){  
-	      for(int it=0;it<locT;it++){
-		int gT = it + locT*iGPU;
-		for(int im=0;im<M;im++){
-		  fscanf(p_loop,"%d %d %d %d %d %d %lf %lf\n",&idum,&idum,&idum,&idum,&idum,&idum,
-			 &tmp_buf_oneD[mu][0+2*imom+2*Nmoms*gT+2*Nmoms*T*im+2*Nmoms*T*M*iPrint], &tmp_buf_oneD[mu][1+2*imom+2*Nmoms*gT+2*Nmoms*T*im+2*Nmoms*T*M*iPrint]);
-		}//-im
-	      }//-it
-	    }//-imom
-	  }//-mu
-	}
-	else{
+    for(int iGPU=0;iGPU<NGPU;iGPU++){
+      asprintf(&ASCII_file,"%s_%s.loop.%d_%d",in_loop,loop_type[lt],NGPU,iGPU);
+      printf("Reading loop file %s\n",ASCII_file);
+      if( (p_loop = fopen(ASCII_file,"r"))==NULL ) errorMsg("Cannot open loop file for reading. Exiting.\n");
+      
+      if(loop_oneD[lt]){
+	for(int mu=0;mu<DIR;mu++){
 	  for(int imom=0;imom<Nmoms;imom++){  
 	    for(int it=0;it<locT;it++){
 	      int gT = it + locT*iGPU;
 	      for(int im=0;im<M;im++){
-		fscanf(p_loop,"%d %d %d %d %d %lf %lf\n",&idum,&idum,&idum,&idum,&idum,
-		       &tmp_buf_uloc[0+2*imom+2*Nmoms*gT+2*Nmoms*T*im+2*Nmoms*T*M*iPrint], &tmp_buf_uloc[1+2*imom+2*Nmoms*gT+2*Nmoms*T*im+2*Nmoms*T*M*iPrint]);
+		fscanf(p_loop,"%d %d %d %d %d %d %lf %lf\n",&idum,&idum,&idum,&idum,&idum,&idum,
+		       &tmp_buf_oneD[mu][0+2*imom+2*Nmoms*gT+2*Nmoms*T*im], &tmp_buf_oneD[mu][1+2*imom+2*Nmoms*gT+2*Nmoms*T*im]);
 	      }//-im
 	    }//-it
 	  }//-imom
-	}
-
-      }//-iGPU
-    }//-iPrint
+	}//-mu
+      }
+      else{
+	for(int imom=0;imom<Nmoms;imom++){  
+	  for(int it=0;it<locT;it++){
+	    int gT = it + locT*iGPU;
+	    for(int im=0;im<M;im++){
+	      fscanf(p_loop,"%d %d %d %d %d %lf %lf\n",&idum,&idum,&idum,&idum,&idum,
+		     &tmp_buf_uloc[0+2*imom+2*Nmoms*gT+2*Nmoms*T*im], &tmp_buf_uloc[1+2*imom+2*Nmoms*gT+2*Nmoms*T*im]);
+	    }//-im
+	  }//-it
+	}//-imom
+      }
+      
+    }//-iGPU
     if(strcmp(loop_type[lt],"Scalar")==0) memcpy(buf_std_uloc, tmp_buf_uloc, buf_bytes);
     if(strcmp(loop_type[lt],"dOp")==0)    memcpy(buf_gen_uloc, tmp_buf_uloc, buf_bytes);
 
@@ -280,8 +260,8 @@ int main(int argc, char *argv[]){
 
   //-Write the loops in HDF5 format
   Info loopInfo;
-  loopInfo.Nstoch = Nstoch; loopInfo.Nstep = Nstep; loopInfo.conf = conf; loopInfo.T = T;
-  loopInfo.Nprint = Nprint; loopInfo.Nmoms = Nmoms; loopInfo.Qsq  = Qsq;
+  loopInfo.conf = conf; loopInfo.T = T;
+  loopInfo.Nmoms = Nmoms; loopInfo.Qsq  = Qsq;
 
   strcpy(loopInfo.loop_type[0],loop_type[0]);  loopInfo.loop_oneD[0] = loop_oneD[0];   // std-ultra_local
   strcpy(loopInfo.loop_type[1],loop_type[1]);  loopInfo.loop_oneD[1] = loop_oneD[1];   // gen-ultra_local

@@ -29,6 +29,8 @@ extract/extract_twop_mesons_posSpace_FastFT_h5
 extract/extract_twop_baryons_HighMomForm_h5
 extract/extract_twop_mesons_HighMomForm_h5
 extract/extract_threep_HighMomForm_h5
+convert/convert_exact_loop_h5
+convert/convert_exact_loop_ultra_local_h5
 convert/convert_stoch_loop_h5
 convert/convert_stoch_loop_ultra_local_h5
 convert/convert_threep_h5
