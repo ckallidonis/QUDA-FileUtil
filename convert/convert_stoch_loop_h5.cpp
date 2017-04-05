@@ -19,7 +19,7 @@ typedef struct{
 } Info;
 
 void usage(char exe[]){
-  printf("%s: <.h5-file prefix> <loop in_dir> <mom_list> <Nstoch> <Nstep> <NGPU> <Nmoms> <Qsq> <T> <conf-trajectory>\n",exe);
+  printf("%s: <.h5-file prefix> <ASCII loop prefix> <mom_list> <Nstoch> <Nstep> <NGPU> <Nmoms> <Qsq> <T> <conf-trajectory>\n",exe);
   exit(-1);
 }
 //=============================================================
@@ -154,9 +154,9 @@ int main(int argc, char *argv[]){
   strcpy(loop_type[4],"LpsDw");    loop_oneD[4] = true;    // gen-one_derivative
   strcpy(loop_type[5],"LpsDwCv");  loop_oneD[5] = true;    // gen-conserved current
 
-  char *h5_file,*in_dir,*mom_list;
+  char *h5_file,*in_loop,*mom_list;
   asprintf(&h5_file,"%s" ,argv[1]);
-  asprintf(&in_dir,"%s"  ,argv[2]);
+  asprintf(&in_loop,"%s"  ,argv[2]);
   asprintf(&mom_list,"%s",argv[3]);
   int Nstoch = atoi(argv[4]);
   int Nstep  = atoi(argv[5]);
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]){
 
   printf("Got the following input:\n");
   printf("h5_file prefix: %s\n",h5_file);
-  printf("ASCII in_dir: %s\n",in_dir);
+  printf("ASCII in_loop: %s\n",in_loop);
   printf("momenta list: %s\n",mom_list);
   printf("Nstoch = %d\n",Nstoch);
   printf("Nstep  = %d\n",Nstep);
@@ -235,7 +235,7 @@ int main(int argc, char *argv[]){
       int sVec = (iPrint+1)*Nstep;
 
       for(int iGPU=0;iGPU<NGPU;iGPU++){
-	asprintf(&ASCII_file,"%s/loop.%04d_%s.loop.%04d.%d_%d",in_dir,conf,loop_type[lt],sVec,NGPU,iGPU);
+	asprintf(&ASCII_file,"%s_%s.loop.%04d.%d_%d",in_loop,loop_type[lt],sVec,NGPU,iGPU);
 	printf("Reading loop file %s\n",ASCII_file);
 	if( (p_loop = fopen(ASCII_file,"r"))==NULL ) errorMsg("Cannot open loop file for reading. Exiting.\n");
 
