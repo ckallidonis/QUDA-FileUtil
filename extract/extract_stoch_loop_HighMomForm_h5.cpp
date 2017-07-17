@@ -144,7 +144,7 @@ int main(int argc, char *argv[]){
         exit(-1);
       }
 
-      asprintf(&group_dir,"/conf_%s/Nstoch_%s/%s/dir_%02d",conf,Ns,loop,mu);
+      asprintf(&group_dir,"/conf_%s/NLP_%s/%s/dir_%02d",conf,Ns,loop,mu);
       group_id = H5Gopen(file_id, group_dir, H5P_DEFAULT);
       dset_id = H5Dopen(group_id, "loop", H5P_DEFAULT);
     
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]){
       exit(-1);
     }
 
-    asprintf(&group_dir,"/conf_%s/Nstoch_%s/%s",conf,Ns,loop);
+    asprintf(&group_dir,"/conf_%s/NLP_%s/%s",conf,Ns,loop);
     group_id = H5Gopen(file_id, group_dir, H5P_DEFAULT);    
     dset_id = H5Dopen(group_id, "loop", H5P_DEFAULT);
     
