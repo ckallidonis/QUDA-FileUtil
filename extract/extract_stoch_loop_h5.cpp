@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
   
   if(loop_oneD[dt]){
     for(int mu=0;mu<DIR;mu++){
-      asprintf(&group_dir,"/conf_%s/NLP_%s/%s/mom_xyz_%s_%s_%s/dir_%02d",conf,Ns,loop,mom[0],mom[1],mom[2],mu);
+      asprintf(&group_dir,"/conf_%s/Nstoch_%s/%s/mom_xyz_%s_%s_%s/dir_%02d",conf,Ns,loop,mom[0],mom[1],mom[2],mu);
       group_id = H5Gopen(file_id, group_dir, H5P_DEFAULT);
       dset_id = H5Dopen(group_id, "loop", H5P_DEFAULT);
     
@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
     }//-mu
   }
   else{
-    asprintf(&group_dir,"/conf_%s/NLP_%s/%s/mom_xyz_%s_%s_%s",conf,Ns,loop,mom[0],mom[1],mom[2]);
+    asprintf(&group_dir,"/conf_%s/Nstoch_%s/%s/mom_xyz_%s_%s_%s",conf,Ns,loop,mom[0],mom[1],mom[2]);
     group_id = H5Gopen(file_id, group_dir, H5P_DEFAULT);    
     dset_id = H5Dopen(group_id, "loop", H5P_DEFAULT);
     
