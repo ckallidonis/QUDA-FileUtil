@@ -49,6 +49,4 @@ Finally, type `make` on the main directory of the package.
 ## Author
 **Christos Kallidonis**
 
-E-mail: c.kallidonis@cyi.ac.cy
-
-Web: [christoskallidonis.com](http://christoskallidonis.com)
+* Web: [christoskallidonis.com](http://christoskallidonis.com)
